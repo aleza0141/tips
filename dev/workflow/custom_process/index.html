@@ -622,7 +622,7 @@ a dry run <code>nf run ... -stub</code>.</p>
     <span class="n">publishDir</span> <span class="o">{</span><span class="s2">&quot;$params.publishDir/$setup.subDir&quot;</span><span class="o">},</span> <span class="nl">mode:</span> <span class="n">params</span><span class="o">.</span><span class="na">publishMode</span>
 
     <span class="nl">input:</span>
-    <span class="n">tuple</span> <span class="nf">val</span><span class="o">(</span><span class="n">meta</span><span class="o">),</span> <span class="n">val</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
+    <span class="n">tuple</span> <span class="n">val</span><span class="o">(</span><span class="n">meta</span><span class="o">),</span> <span class="n">val</span><span class="o">(</span><span class="n">input</span><span class="o">)</span>
 
     <span class="nl">output:</span>
     <span class="n">tuple</span> <span class="n">val</span><span class="o">{</span><span class="n">meta</span><span class="o">},</span> <span class="n">file</span><span class="o">(</span><span class="s2">&quot;output.xyz&quot;</span><span class="o">)</span> 
