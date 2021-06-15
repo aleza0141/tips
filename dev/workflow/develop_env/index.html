@@ -580,9 +580,10 @@ as possible, and also a manageable development environment. Following the admin'
 <a href="https://www.c3se.chalmers.se/documentation/applications/python/">suggestion</a>, we 
 set up python a virtual environment for development.</p>
 <div class="highlight"><pre><span></span><code><span class="c1"># load available modules on HPC to avoid extra dependency</span>
-module load GCC/8.3.0  CUDA/10.1.243  OpenMPI/3.1.4<span class="se">\</span>
-  TensorFlow/2.3.1-Python-3.7.4 PyYAML  matplotlib
-virtualenv --system-site-packages tips_env 
+module load GCC/10.2.0  CUDA/11.1.1  OpenMPI/4.0.5<span class="se">\</span>
+  TensorFlow/2.4.1 PyYAML  matplotlib
+virtualenv --system-site-packages <span class="nv">$HOME</span>/tips_env
+<span class="nb">source</span> <span class="nv">$HOME</span>/tips_env/bin/activatethe environment
 <span class="c1"># install the python packages, suppose we work on both TIPS and PiNN</span>
 git clone https://github.com/yqshao/tips.git
 git clone https://github.com/yqshao/PiNN.git -b TF2
@@ -595,7 +596,7 @@ pip install -e PiNN
     <span class="n">process</span> <span class="o">{</span>
       <span class="n">executor</span> <span class="o">=</span> <span class="s1">&#39;slurm&#39;</span>
       <span class="n">params</span><span class="o">.</span><span class="na">lmpCmd</span> <span class="o">=</span> <span class="s1">&#39;singularity exec docker://lammps/lammps lmp_serial&#39;</span>
-      <span class="n">module</span> <span class="o">=</span> <span class="s1">&#39;GCC/8.3.0:CUDA/10.1.243:OpenMPI/3.1.4:TensorFlow/2.3.1-Python-3.7.4:PyYAML:matplotlib:GROMACS&#39;</span>
+      <span class="n">module</span> <span class="o">=</span> <span class="s1">&#39;GCC/10.2.0:CUDA/11.1.1:OpenMPI/4.0.5:TensorFlow/2.4.1:PyYAML:matplotlib:GROMACS&#39;</span>
       <span class="n">beforeScript</span> <span class="o">=</span> <span class="s1">&#39;source $HOME/tips_env/bin/activate&#39;</span>
       <span class="n">clusterOptions</span> <span class="o">=</span> <span class="s1">&#39;--gres=gpu:T4:1&#39;</span>
       <span class="nl">withLabel:</span> <span class="n">tips</span> <span class="o">{</span>
