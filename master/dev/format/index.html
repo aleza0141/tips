@@ -13,7 +13,7 @@
     
     
       
-        <title>Datasets - The Interatomic Potential Suite</title>
+        <title>Format - The Interatomic Potential Suite</title>
       
     
     
@@ -61,7 +61,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#documentation-under-construction" class="md-skip">
+        <a href="#adding-a-dataset-format" class="md-skip">
           Skip to content
         </a>
       
@@ -99,7 +99,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Datasets
+              Format
             
           </span>
         </div>
@@ -988,34 +988,6 @@
               
   
   
-  
-    <li class="md-nav__item">
-      <a href="../modules/" class="md-nav__link">
-        Modules
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../patterns/" class="md-nav__link">
-        Recipies
-      </a>
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
     
   
   
@@ -1027,10 +999,104 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Format
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
-        Datasets
+        Format
       </a>
       
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-datareader-class" class="md-nav__link">
+    The DataReader class
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-datawriter-class" class="md-nav__link">
+    The DataWriter class
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reserved-labels" class="md-nav__link">
+    Reserved labels
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist" class="md-nav__link">
+    Checklist
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dataset/" class="md-nav__link">
+        Dataset
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../module/" class="md-nav__link">
+        Module
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pattern/" class="md-nav__link">
+        Recipie
+      </a>
     </li>
   
 
@@ -1132,6 +1198,42 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-datareader-class" class="md-nav__link">
+    The DataReader class
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-datawriter-class" class="md-nav__link">
+    The DataWriter class
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reserved-labels" class="md-nav__link">
+    Reserved labels
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#checklist" class="md-nav__link">
+    Checklist
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1142,17 +1244,113 @@
             <article class="md-content__inner md-typeset">
               
                 
-  <a href="https://github.com/teoroo-cmc/tips/edit/master/docs/dev/datasets.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/teoroo-cmc/tips/edit/master/docs/dev/format.md" title="Edit this page" class="md-content__button md-icon">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
 
-<h1 id="documentation-under-construction">Documentation under construction</h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This is a placeholder for future documentation.</p>
-</div>
+<h1 id="adding-a-dataset-format">Adding a dataset format</h1>
+<p>To add a file format, you need to extend the <code>DatasetReader</code> and <code>DatasetWriter</code>
+class in the <code>tips.io</code> modules. The classes define the availability of labels
+and how they can be read/written.</p>
+<h2 id="the-datareader-class">The DataReader class</h2>
+<p>A DataReader should at least implement a <code>__init__</code> method that defines data
+formats given a input <code>dataset</code>, optionally, if the format can have variable
+units, a unit argument can be supplied:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">MyDs</span><span class="p">(</span><span class="n">DatasetReader</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># comment attributes in `DataReader`s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indexable</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds_spec</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># reserved for `.iter()` or `.index()` methods</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dsfile</span> <span class="o">=</span> <span class="n">dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+<p>The <code>indexable</code> and <code>size</code> attribute determines how the dataset might be read,
+when <code>indexable</code> is <code>False</code> and size is not available, the dataset will only be
+read iteratively, this makes tasks like splitting the dataset more expansive,
+since the dataset must be enumerated once before the split can be determined.</p>
+<p>Whenever possible, it is advisable to implement the <code>.index()</code> function if a
+specific data point can be retrieved without loading the entire dataset. For
+plain text formats, this is possible by a fast scan through the file for certain
+pattern and subsequently rewind the text file with the <code>file.seek()</code> function,
+an example is the <code>runner.RunnerLoader</code>.</p>
+<h2 id="the-datawriter-class">The DataWriter class</h2>
+<p>A DataWriter is also initialized with the <code>dataset</code> specifying the output
+location and the optional <code>unit</code> arugment. The <code>.write()</code> method should write
+one sample to the dataset, and the <code>.finalize()</code> method to finalize the writing.
+When implementing the <code>write()</code> method, it is again advisable to avoid caching
+the entire dataset in the memory.</p>
+<h2 id="reserved-labels">Reserved labels</h2>
+<p>Some generally used label names are hard-coded, which have fixed dimension
+definitions.</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Shape</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coord</code></td>
+<td><code>[natoms, 3]</code></td>
+<td><code>float</code></td>
+<td>cartesian coordinates of atoms</td>
+</tr>
+<tr>
+<td><code>force</code></td>
+<td><code>[natoms, 3]</code></td>
+<td><code>float</code></td>
+<td>atomic forces</td>
+</tr>
+<tr>
+<td><code>charge</code></td>
+<td><code>[natoms, 3]</code></td>
+<td><code>float</code></td>
+<td>atomic chages</td>
+</tr>
+<tr>
+<td><code>elem</code></td>
+<td><code>[natoms]</code></td>
+<td><code>float</code></td>
+<td>atomic numbers</td>
+</tr>
+<tr>
+<td><code>cell</code></td>
+<td><code>[3, 3]</code></td>
+<td><code>float</code></td>
+<td>cell vectors</td>
+</tr>
+<tr>
+<td><code>pbc</code></td>
+<td><code>[3]</code></td>
+<td><code>bool</code></td>
+<td>periodic boundary condition</td>
+</tr>
+<tr>
+<td><code>energy</code></td>
+<td><code>[]</code></td>
+<td><code>float</code></td>
+<td>total energy</td>
+</tr>
+</tbody>
+</table>
+<p>When those data exist in the dataset, they should be named consistently.</p>
+<h2 id="checklist">Checklist</h2>
+<p>Below is a checklist for adding a new file format to the TIPS repo:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Implement the format in <code>python/io/your_format.py</code>;</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Document the file format in <code>docs/python/io.md</code>;</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Adding a unit test case in <code>python/test/io.py</code>;</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Submit your pull request!</li>
+</ul>
+<p>To make a smooth PR, also kindly check the developer setup and contributing
+guideline.</p>
 
               
             </article>
@@ -1166,7 +1364,7 @@
     <nav class="md-footer__inner md-grid" aria-label="Footer">
       
         
-        <a href="../patterns/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Recipies" rel="prev">
+        <a href="../../develop/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Overview" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -1175,20 +1373,20 @@
               <span class="md-footer__direction">
                 Previous
               </span>
-              Recipies
+              Overview
             </div>
           </div>
         </a>
       
       
         
-        <a href="../setup/" class="md-footer__link md-footer__link--next" aria-label="Next: Developer setup" rel="next">
+        <a href="../dataset/" class="md-footer__link md-footer__link--next" aria-label="Next: Dataset" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Developer setup
+              Dataset
             </div>
           </div>
           <div class="md-footer__button md-icon">
