@@ -61,7 +61,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#documentation-under-construction" class="md-skip">
+        <a href="#the-tips-io-module" class="md-skip">
           Skip to content
         </a>
       
@@ -860,9 +860,61 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          tips.io
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         tips.io
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-formats" class="md-nav__link">
+    Available formats
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-readerwriter" class="md-nav__link">
+    Custom reader/writer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registered-datasets" class="md-nav__link">
+    Registered datasets
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-documentation" class="md-nav__link">
+    API documentation
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1146,6 +1198,42 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-formats" class="md-nav__link">
+    Available formats
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-readerwriter" class="md-nav__link">
+    Custom reader/writer
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registered-datasets" class="md-nav__link">
+    Registered datasets
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-documentation" class="md-nav__link">
+    API documentation
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1162,10 +1250,178 @@
 
 
 
-<h1 id="documentation-under-construction">Documentation under construction</h1>
+<h1 id="the-tips-io-module">The TIPS IO module</h1>
+<p>The IO module in TIPS allows for the translation between different atomistic
+data formats, with a special focus for AML. The core class is <code>tips.io.Dataset</code>,
+which holds the dataset and its metadata, and allows for manipulation and
+convertion of the data. To create datasets, the easiest way is to use the
+universal data loader <code>load_ds</code>:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Usage</label><label for="__tabbed_1_2">Output</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">tips.io</span> <span class="kn">import</span> <span class="n">load_ds</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_ds</span><span class="p">(</span><span class="s1">&#39;cp2k-pos-1.xyz&#39;</span><span class="p">,</span>
+             <span class="n">frc</span><span class="o">=</span><span class="s1">&#39;cp2k-frc-1.xyz&#39;</span><span class="p">,</span>
+             <span class="n">cell</span><span class="o">=</span><span class="s1">&#39;cp2k-cell.dat&#39;</span><span class="p">,</span>
+             <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;cp2k&#39;</span><span class="p">)</span>
+
+<span class="c1"># data can be splitted, converted</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">split</span><span class="p">({</span><span class="s1">&#39;train&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">})</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;export.xyz&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;ext-xyz&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><span class="c1"># printing the  dataset shows basic information about the dataset</span>
+<span class="o">&lt;</span><span class="n">tips</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+ <span class="n">size</span><span class="p">:</span> <span class="mi">50</span>
+ <span class="nb">format</span><span class="p">:</span> <span class="s1">&#39;CP2K outputs&#39;</span>
+ <span class="n">indexable</span><span class="p">:</span> <span class="kc">True</span>
+ <span class="n">structure</span><span class="p">:</span>
+   <span class="o">-</span> <span class="n">elems</span><span class="p">:</span> <span class="err">?</span><span class="p">,</span> <span class="n">int32</span>
+   <span class="o">-</span> <span class="n">coord</span><span class="p">:</span> <span class="err">?</span><span class="n">x3</span><span class="p">,</span> <span class="n">float32</span>
+   <span class="o">-</span> <span class="n">cell</span><span class="p">:</span> <span class="mi">3</span><span class="n">x3</span><span class="p">,</span> <span class="n">float32</span><span class="o">&gt;</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Detailed descriptions about the <code>Dataset</code> object can be found in its <a href="">API documentation</a>.</p>
+<h2 id="available-formats">Available formats</h2>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This is a placeholder for future documentation.</p>
+<p class="admonition-title">Check marks are planned implementations for now</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Format</th>
+<th>Read</th>
+<th>Convert</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ase</td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td>ASE Atoms objects</td>
+</tr>
+<tr>
+<td>cp2k</td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td></td>
+<td>CP2K data (pos, frc, and cell)</td>
+</tr>
+<tr>
+<td>deepmd</td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td>DeePMD format</td>
+</tr>
+<tr>
+<td>ext-xyz</td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td>Extended XYZ format</td>
+</tr>
+<tr>
+<td>lammps</td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td>LAMMPS dump format</td>
+</tr>
+<tr>
+<td>runner</td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td><img alt="✅" class="emojione" src="https://cdnjs.cloudflare.com/ajax/libs/emojione/2.2.7/assets/png/2705.png" title=":white_check_mark:" /></td>
+<td>RuNNer format</td>
+</tr>
+</tbody>
+</table>
+<h2 id="custom-readerwriter">Custom reader/writer</h2>
+<p>It is possible to extend TIPS by registering extra reader/writers, an example
+for custom reader/writer can be found below:</p>
+<details class="example">
+<summary>Example implementation of custom data reader and converters</summary>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">tips.io.utils</span> <span class="kn">import</span> <span class="n">tips_reader</span><span class="p">,</span> <span class="n">tips_convert</span>
+
+<span class="nd">@tips_reader</span><span class="p">(</span><span class="s1">&#39;my-ase&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_ase</span><span class="p">(</span><span class="n">traj</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An example reader for ASE Atoms</span>
+
+<span class="sd">    The function should return a tips Dataset, by specifying at least an generator which </span>
+<span class="sd">    yields elements in the dataset one by one, and the metadata specifying the data structure.</span>
+<span class="sd">    (the generator is redundent ni the below case because an ASE trajectory is indexable</span>
+<span class="sd">    and has a defined size, such a generator will be defined automatically by tips)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        traj: list of atoms</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tips.io.Dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">tips.io</span> <span class="kn">import</span> <span class="n">Dataset</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s1">&#39;spec&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;elems&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="s1">&#39;int32&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;coord&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="s1">&#39;float32&#39;</span><span class="p">},</span>
+        <span class="s1">&#39;cell&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;shape&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="s1">&#39;float32&#39;</span><span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">traj</span><span class="p">),</span>
+      <span class="s1">&#39;fmt&#39;</span><span class="p">:</span> <span class="s1">&#39;Custom ASE Format&#39;</span>
+    <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">indexer</span><span class="p">(</span><span class="n">i</span><span class="p">):</span>
+        <span class="n">atoms</span> <span class="o">=</span> <span class="n">traj</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+           <span class="s1">&#39;elems&#39;</span><span class="p">:</span> <span class="n">atoms</span><span class="o">.</span><span class="n">numbers</span>
+           <span class="s1">&#39;coord&#39;</span><span class="p">:</span> <span class="n">atoms</span><span class="o">.</span><span class="n">positions</span><span class="p">,</span>
+           <span class="s1">&#39;cell&#39;</span><span class="p">:</span> <span class="n">atoms</span><span class="o">.</span><span class="n">cell</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="k">def</span> <span class="nf">generator</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]):</span>
+            <span class="k">yield</span> <span class="n">indexer</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">generator</span><span class="o">=</span><span class="n">generator</span><span class="p">,</span> <span class="n">meta</span><span class="o">=</span><span class="n">meta</span><span class="p">,</span> <span class="n">indexer</span><span class="o">=</span><span class="n">indexer</span><span class="p">)</span>
+
+
+<span class="nd">@tips_convert</span><span class="p">(</span><span class="s1">&#39;my-ase&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">ds_to_ase</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; An example data converter to ASE trajectory</span>
+
+<span class="sd">    The function must takes on dataset and optionally extra keyword arguments as inputs.</span>
+<span class="sd">    There is no limitaton on the return values.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset (tips.io.Dataset): a dataset object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atoms</span>
+    <span class="n">traj</span> <span class="o">=</span> <span class="p">[</span>
+       <span class="n">Atoms</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;elems&#39;</span><span class="p">],</span> 
+             <span class="n">positions</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;coord&#39;</span><span class="p">],</span>
+             <span class="n">cell</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cell&#39;</span><span class="p">])</span>
+       <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">dataset</span>
+    <span class="p">]</span>
+    <span class="k">return</span>  <span class="n">traj</span>
+</code></pre></div>
+<p>The additonal format will be available for data loading and conversion:
+<div class="highlight"><pre><span></span><code><span class="n">ds</span> <span class="o">=</span> <span class="n">load_ds</span><span class="p">([</span><span class="n">Atoms</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">],</span> <span class="n">Atoms</span><span class="p">[</span><span class="s1">&#39;Cu&#39;</span><span class="p">]],</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;my-ase&#39;</span><span class="p">)</span>
+<span class="n">traj</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;my-ase&#39;</span><span class="p">)</span>
+</code></pre></div></p>
+</details>
+<h2 id="registered-datasets">Registered datasets</h2>
+<p>TIPS curates a small list of datasets that can be directly accessed via the
+<code>load_ds</code> function. For now, the list exist mainly for test and demonstrative
+purpose.</p>
+<div class="admonition warning">
+<p class="admonition-title">Not Implemented yet!</p>
+</div>
+<h2 id="api-documentation">API documentation</h2>
+<div class="admonition warning">
+<p class="admonition-title">Not Implemented yet!</p>
 </div>
 
               
