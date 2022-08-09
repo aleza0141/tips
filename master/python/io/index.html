@@ -1283,8 +1283,9 @@ universal data loader <code>load_ds</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">tips.io</span> <span class="kn">import</span> <span class="n">load_ds</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">load_ds</span><span class="p">(</span><span class="s1">&#39;path/to/dataset&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">deepmd</span><span class="o">-</span><span class="n">raw</span><span class="s1">&#39;)</span>
-
-<span class="n">ds</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;dataset.yml&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pinn&#39;</span><span class="p">)</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="c1"># datasets can be joined together </span>
+<span class="n">ds</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;dataset.yml&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;pinn&#39;</span><span class="p">)</span> <span class="c1"># the and converted to different formats</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
