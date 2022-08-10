@@ -1280,19 +1280,19 @@ nextflow run main.nf
 </code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>profiles {
-  standard {
-    process {
-      cpus=1
-      errorStrategy=&#39;ignore&#39;
-      withLabel: pinn {container=&#39;yqshao/pinn:master&#39;}
-      withLabel: tame {container=&#39;yqshao/tame:master&#39;}
-    }
-    executor {
-      name = &#39;local&#39;
-      cpus = 16
-    }
-  }
+<div class="highlight"><pre><span></span><code><span class="n">profiles</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">standard</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">process</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">cpus</span><span class="o">=</span><span class="mi">1</span><span class="w"></span>
+<span class="w">      </span><span class="n">errorStrategy</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="nl">withLabel:</span><span class="w"> </span><span class="n">pinn</span><span class="w"> </span><span class="o">{</span><span class="n">container</span><span class="o">=</span><span class="s1">&#39;yqshao/pinn:master&#39;</span><span class="o">}</span><span class="w"></span>
+<span class="w">      </span><span class="nl">withLabel:</span><span class="w"> </span><span class="n">tame</span><span class="w"> </span><span class="o">{</span><span class="n">container</span><span class="o">=</span><span class="s1">&#39;yqshao/tame:master&#39;</span><span class="o">}</span><span class="w"></span>
+<span class="w">    </span><span class="o">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">executor</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;local&#39;</span><span class="w"></span>
+<span class="w">      </span><span class="n">cpus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="w"></span>
+<span class="w">    </span><span class="o">}</span><span class="w"></span>
+<span class="w">  </span><span class="o">}</span><span class="w"></span>
 </code></pre></div>
 </div>
 </div>
