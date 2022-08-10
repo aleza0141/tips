@@ -1272,41 +1272,60 @@
 <h1 id="ase-workflows">ASE workflows</h1>
 <h2 id="asemd">aseMD</h2>
 <p>The aseMD process takes a trained model and runs a MD trajecotry, with some
-limited options regarding the dynamics. For more complex processes, consider
-writing a customized MD process and include it in your workflow.</p>
+limited options regarding the dynamics. The process suppors PiNN models only for
+now. A list of models can be supplied to run an ensemble MD. For more complex
+processes, consider writing a customized MD process and include it in your
+workflow.</p>
 <h3 id="channels">Channels</h3>
 <table>
 <thead>
 <tr>
 <th>Channel</th>
-<th>Format</th>
+<th>Type</th>
 <th>Note</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td>(in) name</td>
+<td>val</td>
+<td>an id to identify the process</td>
+</tr>
+<tr>
 <td>(in) model</td>
 <td>file</td>
-<td>a trained ANN model</td>
+<td>trained ANN model, can be a list of models</td>
 </tr>
 <tr>
-<td>(in) tag</td>
-<td>string</td>
-<td>a string specifying the MD simulation see below</td>
+<td>(in) flags</td>
+<td>val</td>
+<td>a string specifying the MD simulation see <a href="#options">options</a> below</td>
 </tr>
 <tr>
-<td>(in) geo</td>
+<td>(in) init</td>
 <td>file</td>
 <td>initial geometry, in any ASE recognizable format</td>
+</tr>
+<tr>
+<td>(in) pub</td>
+<td>val</td>
+<td>path to publish the output trajectory</td>
 </tr>
 <tr>
 <td>(out) traj</td>
 <td>file</td>
 <td>output trajectory</td>
 </tr>
+<tr>
+<td>(out) log</td>
+<td>file</td>
+<td>MD log</td>
+</tr>
 </tbody>
 </table>
 <h3 id="options">Options</h3>
+<p>The MD specifics for aseMD is specified as a string of flags in the form of
+<code>--option1 val1 --option2 val</code>, the available options and default valeus are down below.</p>
 <table>
 <thead>
 <tr>
@@ -1317,40 +1336,137 @@ writing a customized MD process and include it in your workflow.</p>
 </thead>
 <tbody>
 <tr>
-<td>-nvt/-npt</td>
-<td>nvt</td>
-<td>Ensemble</td>
+<td><code>--ensemble</code></td>
+<td><code>'nvt'</code></td>
+<td><code>'npt'</code> or <code>'nvt'</code></td>
 </tr>
 <tr>
-<td>-T</td>
-<td>273</td>
+<td><code>--T</code></td>
+<td><code>273</code></td>
 <td>Temperature in K</td>
 </tr>
 <tr>
-<td>-P</td>
-<td>1</td>
-<td>Pressure in bar</td>
-</tr>
-<tr>
-<td>-dt</td>
-<td>0.5</td>
-<td>Time step in ps</td>
-</tr>
-<tr>
-<td>-time</td>
-<td>100</td>
+<td><code>--t</code></td>
+<td><code>100</code></td>
 <td>Time in ps</td>
+</tr>
+<tr>
+<td><code>--dt</code></td>
+<td><code>0.5</code></td>
+<td>Time step in fs</td>
+</tr>
+<tr>
+<td><code>--taut</code></td>
+<td><code>100</code></td>
+<td>Damping factor for thermostat in steps</td>
+</tr>
+<tr>
+<td><code>--taup</code></td>
+<td><code>1000</code></td>
+<td>Damping factor for barostat in steps</td>
+</tr>
+<tr>
+<td><code>--log-every</code></td>
+<td><code>5</code></td>
+<td>Log interval in steps</td>
+</tr>
+<tr>
+<td><code>--pressure</code></td>
+<td><code>1</code></td>
+<td>pressure in bar</td>
+</tr>
+<tr>
+<td><code>--compressibility</code></td>
+<td><code>4.57e-5</code></td>
+<td>compressibility in bar</td>
 </tr>
 </tbody>
 </table>
 <details>
 <summary>Source code</summary>
-<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env Python</span>
+<div class="highlight"><pre><span></span><code><span class="n">nextflow</span><span class="o">.</span><span class="na">enable</span><span class="o">.</span><span class="na">dsl</span><span class="o">=</span><span class="mi">2</span><span class="w"></span>
 
-<span class="k">def</span> <span class="nf">__main__</span><span class="p">():</span>
-    <span class="k">return</span> <span class="n">traj</span>
+<span class="n">process</span><span class="w"> </span><span class="n">aseMD</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">label</span><span class="w"> </span><span class="s1">&#39;ase&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$publish&quot;</span><span class="o">,</span><span class="w"> </span><span class="nl">mode:</span><span class="w"> </span><span class="s1">&#39;link&#39;</span><span class="w"></span>
 
-<span class="n">__main__</span><span class="p">()</span>
+<span class="w">    </span><span class="nl">input:</span><span class="w"></span>
+<span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">tag</span><span class="w"></span>
+<span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">model</span><span class="w"></span>
+<span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
+<span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">flags</span><span class="w"></span>
+<span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">publish</span><span class="w"></span>
+
+<span class="w">    </span><span class="nl">output:</span><span class="w"></span>
+<span class="w">      </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">tag</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;asemd.traj&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="w"> </span><span class="n">traj</span><span class="w"></span>
+<span class="w">      </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">tag</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;asemd.log&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="w"> </span><span class="n">log</span><span class="w"></span>
+
+<span class="w">    </span><span class="nl">script:</span><span class="w"></span>
+<span class="w">      </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">      #!/usr/bin/env python</span>
+<span class="s2">      import re</span>
+<span class="s2">      import pinn</span>
+<span class="s2">      import tensorflow as tf</span>
+<span class="s2">      from ase import units</span>
+<span class="s2">      from ase.io import read</span>
+<span class="s2">      from ase.io.trajectory import Trajectory</span>
+<span class="s2">      from ase.md import MDLogger</span>
+<span class="s2">      from ase.md.velocitydistribution import MaxwellBoltzmannDistribution</span>
+<span class="s2">      from ase.md.nptberendsen import NPTBerendsen</span>
+
+<span class="s2">      setup = {</span>
+<span class="s2">        &#39;ensemble&#39;: &#39;npt&#39;,</span>
+<span class="s2">        &#39;T&#39;: 373,</span>
+<span class="s2">        &#39;t&#39;: 100, # time in ps</span>
+<span class="s2">        &#39;dt&#39;: 0.5, # timestep is fs</span>
+<span class="s2">        &#39;taut&#39;: 100,</span>
+<span class="s2">        &#39;taup&#39;: 1000,</span>
+<span class="s2">        &#39;log-every&#39;: 5, # log interval in steps</span>
+<span class="s2">        &#39;pressure&#39;: 1, # pressure in bar</span>
+<span class="s2">        &#39;compressibility&#39;: 4.57e-4</span>
+<span class="s2">      }</span>
+<span class="s2">      flags = {</span>
+<span class="s2">        k: v for k,v in</span>
+<span class="s2">          re.findall(&#39;--(.*?)[\\s,\\=]([^\\s]*)&#39;, &quot;$flags&quot;)</span>
+<span class="s2">      }</span>
+<span class="s2">      setup.update(flags)</span>
+<span class="s2">      ensemble=setup[&#39;ensemble&#39;]</span>
+<span class="s2">      T=float(setup[&#39;T&#39;])</span>
+<span class="s2">      t=float(setup[&#39;t&#39;])*units.fs*1e3</span>
+<span class="s2">      dt=float(setup[&#39;dt&#39;])*units.fs</span>
+<span class="s2">      taut=int(setup[&#39;taut&#39;])</span>
+<span class="s2">      taup=int(setup[&#39;taup&#39;])</span>
+<span class="s2">      every=int(setup[&#39;log-every&#39;])</span>
+<span class="s2">      pressure=float(setup[&#39;pressure&#39;])</span>
+<span class="s2">      compressibility=float(setup[&#39;compressibility&#39;])</span>
+
+<span class="s2">      ${(model instanceof Path) ?</span>
+<span class="s2">      &quot;calc = pinn.get_calc(&#39;$model&#39;)&quot; :</span>
+<span class="s2">      &quot;&quot;&quot;</span><span class="w"></span>
+<span class="w">      </span><span class="n">models</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="s2">&quot;${model.join(&#39;&quot;</span><span class="o">,</span><span class="w"> </span><span class="s2">&quot;&#39;)}&quot;</span><span class="o">]</span><span class="w"></span>
+<span class="w">      </span><span class="n">calcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">pinn</span><span class="o">.</span><span class="na">get_calc</span><span class="o">(</span><span class="n">model</span><span class="o">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">models</span><span class="o">]</span><span class="w"></span>
+<span class="w">      </span><span class="n">calc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">AverageCalculator</span><span class="o">(</span><span class="n">calcs</span><span class="o">)</span><span class="w"></span>
+<span class="w">      </span><span class="s2">&quot;&quot;&quot;}</span>
+
+<span class="s2">      atoms = read(&quot;$init&quot;)</span>
+<span class="s2">      atoms.set_calculator(calc)</span>
+<span class="s2">      MaxwellBoltzmannDistribution(atoms, T*units.kB)</span>
+
+<span class="s2">      if ensemble == &#39;npt&#39;:</span>
+<span class="s2">          dyn = NPTBerendsen(atoms, timestep=dt, temperature=T, pressure=pressure,</span>
+<span class="s2">                        taut=dt * taut, taup=dt * taup, compressibility=compressibility)</span>
+<span class="s2">      if ensemble == &#39;nvt&#39;:</span>
+<span class="s2">          dyn = NVTBerendsen(atoms, timestep=dt, temperature=T, taut=dt * taut)</span>
+
+<span class="s2">      dyn.attach(</span>
+<span class="s2">          MDLogger(dyn, atoms, &#39;asemd.log&#39;,stress=True, mode=&quot;w&quot;),</span>
+<span class="s2">          interval=int(every))</span>
+<span class="s2">      dyn.attach(</span>
+<span class="s2">          Trajectory(&#39;asemd.traj&#39;, &#39;w&#39;, atoms).write,</span>
+<span class="s2">          interval=int(every))</span>
+<span class="s2">      dyn.run(int(t/dt))</span>
+<span class="s2">      &quot;&quot;&quot;</span><span class="w"></span>
+<span class="o">}</span><span class="w"></span>
 </code></pre></div>
 </details>
 
