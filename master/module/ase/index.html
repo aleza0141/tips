@@ -1392,7 +1392,7 @@ workflow.</p>
 
 <span class="w">    </span><span class="nl">input:</span><span class="w"></span>
 <span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">tag</span><span class="w"></span>
-<span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">model</span><span class="w"></span>
+<span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">model</span><span class="o">,</span><span class="w"> </span><span class="nl">stageAs:</span><span class="w"> </span><span class="s1">&#39;model*&#39;</span><span class="w"></span>
 <span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
 <span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">flags</span><span class="w"></span>
 <span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">publish</span><span class="w"></span>
@@ -1411,19 +1411,20 @@ workflow.</p>
 <span class="s2">      from ase.io import read</span>
 <span class="s2">      from ase.io.trajectory import Trajectory</span>
 <span class="s2">      from ase.md import MDLogger</span>
+<span class="s2">      from ase.calculators.mixing import AverageCalculator</span>
 <span class="s2">      from ase.md.velocitydistribution import MaxwellBoltzmannDistribution</span>
 <span class="s2">      from ase.md.nptberendsen import NPTBerendsen</span>
 
 <span class="s2">      setup = {</span>
-<span class="s2">        &#39;ensemble&#39;: &#39;npt&#39;,</span>
-<span class="s2">        &#39;T&#39;: 373,</span>
+<span class="s2">        &#39;ensemble&#39;: &#39;npt&#39;, # ensemble</span>
+<span class="s2">        &#39;T&#39;: 373, # temperature in K</span>
 <span class="s2">        &#39;t&#39;: 100, # time in ps</span>
 <span class="s2">        &#39;dt&#39;: 0.5, # timestep is fs</span>
-<span class="s2">        &#39;taut&#39;: 100,</span>
-<span class="s2">        &#39;taup&#39;: 1000,</span>
+<span class="s2">        &#39;taut&#39;: 100, # thermostat damping in steps</span>
+<span class="s2">        &#39;taup&#39;: 1000, # barastat dampling in steps</span>
 <span class="s2">        &#39;log-every&#39;: 5, # log interval in steps</span>
 <span class="s2">        &#39;pressure&#39;: 1, # pressure in bar</span>
-<span class="s2">        &#39;compressibility&#39;: 4.57e-4</span>
+<span class="s2">        &#39;compressibility&#39;: 4.57e-4 # compressibility in bar^{-1}</span>
 <span class="s2">      }</span>
 <span class="s2">      flags = {</span>
 <span class="s2">        k: v for k,v in</span>
