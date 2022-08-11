@@ -1331,11 +1331,6 @@ two parameters that can be specified during runtime or in <code>nextflow.config<
 <td>Auxiliary files</td>
 </tr>
 <tr>
-<td>(in) publish</td>
-<td>val</td>
-<td>path to publish the output traj. and log</td>
-</tr>
-<tr>
 <td>(out) traj</td>
 <td>file</td>
 <td>Trajectory (pos, frc, ener, cell, stress)</td>
@@ -1382,61 +1377,88 @@ is used, the last frame will be used.</p>
 <td>file</td>
 <td>a geometry file, to be inserted to the input</td>
 </tr>
-<tr>
-<td>(in) publish</td>
-<td>val</td>
-<td>path to publish the CP2K input and output</td>
-</tr>
 </tbody>
 </table>
 <details>
 <summary>Source code</summary>
 <div class="highlight"><pre><span></span><code><span class="n">nextflow</span><span class="o">.</span><span class="na">enable</span><span class="o">.</span><span class="na">dsl</span><span class="o">=</span><span class="mi">2</span><span class="w"></span>
 
+<span class="n">params</span><span class="o">.</span><span class="na">publish</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cp2k&#39;</span><span class="w"></span>
 <span class="n">params</span><span class="o">.</span><span class="na">cp2k_cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;cp2k&#39;</span><span class="w"></span>
 <span class="n">params</span><span class="o">.</span><span class="na">cp2k_aux</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="w"></span>
 
 <span class="n">process</span><span class="w"> </span><span class="n">cp2k</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">tag</span><span class="w"> </span><span class="s2">&quot;$name&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="n">label</span><span class="w"> </span><span class="s1">&#39;cp2k&#39;</span><span class="w"></span>
-<span class="w">  </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$publish&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$params.publish/$name&quot;</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">input:</span><span class="w"></span>
 <span class="w">    </span><span class="n">val</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
 <span class="w">    </span><span class="n">path</span><span class="w"> </span><span class="n">input</span><span class="w"></span>
-<span class="w">    </span><span class="n">path</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
 <span class="w">    </span><span class="n">path</span><span class="w"> </span><span class="n">aux</span><span class="w"></span>
-<span class="w">    </span><span class="n">val</span><span class="w"> </span><span class="n">publish</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">output:</span><span class="w"></span>
 <span class="w">    </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;*.{ener,xyz,stress}&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="n">traj</span><span class="w"></span>
-<span class="w">    </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;cp2k.log&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="n">log</span><span class="w"></span>
+<span class="w">    </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;cp2k.log&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="n">logs</span><span class="w"></span>
 <span class="w">    </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;*.restart&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="n">restart</span><span class="o">,</span><span class="w"> </span><span class="nl">optional:</span><span class="kc">true</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">script:</span><span class="w"></span>
-<span class="w">  </span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">  #!/bin/bash</span>
-<span class="s2">  $params.cp2k_cmd -i $input | tee cp2k.log</span>
-<span class="s2">  &quot;&quot;&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    #!/bin/bash</span>
+<span class="s2">    $params.cp2k_cmd -i $input | tee cp2k.log</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="w"></span>
 <span class="o">}</span><span class="w"></span>
 
 
-<span class="n">process</span><span class="w"> </span><span class="n">ck2pInp</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="n">process</span><span class="w"> </span><span class="n">cp2kGenInp</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">tag</span><span class="w"> </span><span class="s2">&quot;$name&quot;</span><span class="w"></span>
 <span class="w">  </span><span class="n">label</span><span class="w"> </span><span class="s1">&#39;tips&#39;</span><span class="w"></span>
-<span class="w">  </span><span class="n">cache</span><span class="w"> </span><span class="kc">false</span><span class="w"></span>
-<span class="w">  </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$publish&quot;</span><span class="w"></span>
+<span class="w">  </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$params.publish/$name&quot;</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">input:</span><span class="w"></span>
 <span class="w">    </span><span class="n">val</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
-<span class="w">    </span><span class="n">patth</span><span class="w"> </span><span class="n">input</span><span class="w"></span>
+<span class="w">    </span><span class="n">path</span><span class="w"> </span><span class="n">input</span><span class="o">,</span><span class="w"> </span><span class="nl">stageAs:</span><span class="w"> </span><span class="s1">&#39;cp2k_skel.inp&#39;</span><span class="w"></span>
 <span class="w">    </span><span class="n">path</span><span class="w"> </span><span class="n">init</span><span class="w"></span>
+<span class="w">    </span><span class="n">val</span><span class="w"> </span><span class="n">flags</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">output:</span><span class="w"></span>
-<span class="w">    </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;generated.inp&#39;</span><span class="o">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;cp2k.inp&#39;</span><span class="o">)</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">script:</span><span class="w"></span>
 <span class="w">  </span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">  #!/bin/bash</span>
-
+<span class="s2">  #!/usr/bin/env python</span>
+<span class="s2">  import re</span>
+<span class="s2">  from ase.data import chemical_symbols as symbol</span>
+<span class="s2">  from tips.io import load_ds</span>
+<span class="s2">  # read flags</span>
+<span class="s2">  setup = {</span>
+<span class="s2">    &#39;emap&#39;: None,</span>
+<span class="s2">    &#39;idx&#39;: -1,</span>
+<span class="s2">    &#39;fmt&#39;: &#39;auto&#39;,</span>
+<span class="s2">  }</span>
+<span class="s2">  flags = {</span>
+<span class="s2">    k: v for k,v in</span>
+<span class="s2">      re.findall(&#39;--(.*?)[\\s,\\=]([^\\s]*)&#39;, &quot;$flags&quot;)</span>
+<span class="s2">  }</span>
+<span class="s2">  setup.update(flags)</span>
+<span class="s2">  # load the desired geometry</span>
+<span class="s2">  ds = load_ds(&quot;$init&quot;, fmt=flags[&#39;fmt&#39;])</span>
+<span class="s2">  if setup[&#39;emap&#39;] is not None:</span>
+<span class="s2">      ds = ds.map_elems(setup[&#39;emap&#39;])</span>
+<span class="s2">  datum = ds[int(setup[&#39;idx&#39;])]</span>
+<span class="s2">  # edit the input file</span>
+<span class="s2">  coord = [f&#39;  {symbol[e]} {x} {y} {z}&#39; for e, (x,y,z) in zip(datum[&#39;elem&#39;], datum[&#39;coord&#39;])]</span>
+<span class="s2">  cell = [f&#39;  {v} {x} {y} {z}&#39; for v, (x, y, z) in zip(&#39;ABC&#39;, datum[&#39;cell&#39;])]</span>
+<span class="s2">  subsys = [&#39;&amp;COORD&#39;]+coord+[&#39;&amp;END COORD&#39;]+[&#39;&amp;CELL&#39;]+cell+[&#39;&amp;END CELL&#39;]</span>
+<span class="s2">  lines = open(&quot;$input&quot;).readlines()</span>
+<span class="s2">  for idx, line in enumerate(lines):</span>
+<span class="s2">      if &#39;&amp;END SUBSYS&#39; in line:</span>
+<span class="s2">          indent = len(line) - len(line.lstrip())</span>
+<span class="s2">          break</span>
+<span class="s2">  subsys = [&#39; &#39;*(indent+2) + l + &#39;\\n&#39; for l in subsys]</span>
+<span class="s2">  lines = lines[:idx] + subsys + lines[idx:]</span>
+<span class="s2">  with open(&#39;cp2k.inp&#39;, &#39;w&#39;) as f:</span>
+<span class="s2">      f.writelines(lines)</span>
 <span class="s2">  &quot;&quot;&quot;</span><span class="w"></span>
 <span class="o">}</span><span class="w"></span>
 
@@ -1446,26 +1468,23 @@ is used, the last frame will be used.</p>
 <span class="w">    </span><span class="n">name</span><span class="w"></span>
 <span class="w">    </span><span class="n">input</span><span class="w"></span>
 <span class="w">    </span><span class="n">init</span><span class="w"></span>
-<span class="w">    </span><span class="n">publish</span><span class="w"></span>
+<span class="w">    </span><span class="n">flags</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">main:</span><span class="w"></span>
-<span class="w">    </span><span class="n">ch_inp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp2kInp</span><span class="o">(</span><span class="n">name</span><span class="o">,</span><span class="w"> </span><span class="n">input</span><span class="o">,</span><span class="w"> </span><span class="n">init</span><span class="o">)</span><span class="w"></span>
-<span class="w">    </span><span class="n">ch_pub</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">name</span><span class="o">.</span><span class="na">merget</span><span class="o">(</span><span class="n">publish</span><span class="o">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">ch_inp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp2kGenInp</span><span class="o">(</span><span class="n">name</span><span class="o">,</span><span class="w"> </span><span class="n">input</span><span class="o">,</span><span class="w"> </span><span class="n">init</span><span class="o">,</span><span class="w"> </span><span class="n">flags</span><span class="o">)</span><span class="w"></span>
 <span class="w">    </span><span class="n">ch_inp</span><span class="w"></span>
-<span class="w">      </span><span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">ch_pub</span><span class="o">)</span><span class="w"></span>
 <span class="w">      </span><span class="o">.</span><span class="na">multiMap</span><span class="o">{</span><span class="w"></span>
-<span class="w">        </span><span class="n">name</span><span class="o">,</span><span class="w"> </span><span class="n">inp</span><span class="o">,</span><span class="w"> </span><span class="n">publish</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"></span>
+<span class="w">        </span><span class="n">name</span><span class="o">,</span><span class="w"> </span><span class="n">inp</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"></span>
 <span class="w">        </span><span class="nl">name:</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
 <span class="w">        </span><span class="nl">inp:</span><span class="w"> </span><span class="n">inp</span><span class="w"></span>
 <span class="w">        </span><span class="nl">aux:</span><span class="w"> </span><span class="n">file</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">cp2k_aux</span><span class="o">)</span><span class="w"></span>
-<span class="w">        </span><span class="nl">publish:</span><span class="w"> </span><span class="n">publish</span><span class="w"></span>
 <span class="w">      </span><span class="o">}</span><span class="w"></span>
 <span class="w">      </span><span class="o">.</span><span class="na">set</span><span class="w"> </span><span class="o">{</span><span class="n">ch</span><span class="o">}</span><span class="w"></span>
-<span class="w">    </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp2k</span><span class="o">(</span><span class="n">ch</span><span class="o">.</span><span class="na">name</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">inp</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">aux</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">publish</span><span class="o">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cp2k</span><span class="o">(</span><span class="n">ch</span><span class="o">.</span><span class="na">name</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">inp</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">aux</span><span class="o">)</span><span class="w"></span>
 
 <span class="w">  </span><span class="nl">emit:</span><span class="w"></span>
 <span class="w">    </span><span class="n">traj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out</span><span class="o">.</span><span class="na">traj</span><span class="w"></span>
-<span class="w">    </span><span class="n">log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out</span><span class="o">.</span><span class="na">log</span><span class="w"></span>
+<span class="w">    </span><span class="n">logs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out</span><span class="o">.</span><span class="na">logs</span><span class="w"></span>
 <span class="w">    </span><span class="n">restart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">out</span><span class="o">.</span><span class="na">restart</span><span class="w"></span>
 <span class="o">}</span><span class="w"></span>
 </code></pre></div>

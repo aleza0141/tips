@@ -1293,11 +1293,6 @@ documentation</a>.</p>
 <td>flags for <code>pinn train</code></td>
 </tr>
 <tr>
-<td>(in) publish</td>
-<td>val</td>
-<td>path to publish the output traj. and log</td>
-</tr>
-<tr>
 <td>(out) model</td>
 <td>file</td>
 <td>Trained PiNN model</td>
@@ -1313,16 +1308,18 @@ documentation</a>.</p>
 <summary>Source code</summary>
 <div class="highlight"><pre><span></span><code><span class="n">nextflow</span><span class="o">.</span><span class="na">enable</span><span class="o">.</span><span class="na">dsl</span><span class="o">=</span><span class="mi">2</span><span class="w"></span>
 
+<span class="n">params</span><span class="o">.</span><span class="na">publish</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pinn&#39;</span><span class="w"></span>
+
 <span class="n">process</span><span class="w"> </span><span class="n">pinnTrain</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">tag</span><span class="w"> </span><span class="s2">&quot;$name&quot;</span><span class="w"></span>
 <span class="w">    </span><span class="n">label</span><span class="w"> </span><span class="s1">&#39;pinn&#39;</span><span class="w"></span>
-<span class="w">    </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$publish&quot;</span><span class="o">,</span><span class="w"> </span><span class="nl">mode:</span><span class="w"> </span><span class="s1">&#39;link&#39;</span><span class="w"></span>
+<span class="w">    </span><span class="n">publishDir</span><span class="w"> </span><span class="s2">&quot;$params.publish/$name&quot;</span><span class="w"></span>
 
 <span class="w">    </span><span class="nl">input:</span><span class="w"></span>
 <span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">name</span><span class="w"></span>
 <span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">dataset</span><span class="w"></span>
 <span class="w">      </span><span class="n">path</span><span class="w"> </span><span class="n">input</span><span class="w"></span>
 <span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">flags</span><span class="w"></span>
-<span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="n">publish</span><span class="w"></span>
 
 <span class="w">    </span><span class="nl">output:</span><span class="w"></span>
 <span class="w">      </span><span class="n">tuple</span><span class="w"> </span><span class="n">val</span><span class="o">(</span><span class="n">name</span><span class="o">),</span><span class="w"> </span><span class="n">path</span><span class="o">(</span><span class="s1">&#39;model/&#39;</span><span class="o">,</span><span class="w"> </span><span class="nl">type:</span><span class="s1">&#39;dir&#39;</span><span class="o">),</span><span class="w"> </span><span class="nl">emit:</span><span class="w"> </span><span class="n">model</span><span class="w"></span>
