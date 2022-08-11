@@ -61,7 +61,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#documentation-under-construction" class="md-skip">
+        <a href="#tips-convert" class="md-skip">
           Skip to content
         </a>
       
@@ -804,9 +804,47 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          tips convert
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         tips convert
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1167,6 +1205,28 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    Options
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1183,11 +1243,44 @@
 
 
 
-<h1 id="documentation-under-construction">Documentation under construction</h1>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This is a placeholder for future documentation.</p>
-</div>
+<h1 id="tips-convert">tips convert</h1>
+<p>Convert one or several datasets into another format. See
+<a href="../python/io/#available-formats">tips.io</a> for the formats available.</p>
+<h2 id="usage">Usage</h2>
+<div class="highlight"><pre><span></span><code>pinn convert [options] ds1 ds2 ...
+</code></pre></div>
+<h2 id="options">Options</h2>
+<table>
+<thead>
+<tr>
+<th>Option [shorthand]</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--output [-o]</code></td>
+<td><code>'dataset'</code></td>
+<td>name of the output dataset</td>
+</tr>
+<tr>
+<td><code>--fmt [-f]</code></td>
+<td><code>'auto'</code></td>
+<td>format of input dataset</td>
+</tr>
+<tr>
+<td><code>--ofmt [-of]</code></td>
+<td><code>'runner'</code></td>
+<td>format of output dataset</td>
+</tr>
+<tr>
+<td><code>--emap [-em]</code></td>
+<td><code>None</code></td>
+<td>map the elements according to a LAMMPS data file</td>
+</tr>
+</tbody>
+</table>
 
               
             </article>
