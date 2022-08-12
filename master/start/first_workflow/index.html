@@ -395,8 +395,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structure-of-mainnf" class="md-nav__link">
-    Structure of main.nf
+  <a href="#structure-of-the-project" class="md-nav__link">
+    Structure of the project
   </a>
   
 </li>
@@ -1231,8 +1231,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#structure-of-mainnf" class="md-nav__link">
-    Structure of main.nf
+  <a href="#structure-of-the-project" class="md-nav__link">
+    Structure of the project
   </a>
   
 </li>
@@ -1270,106 +1270,139 @@
 
 
 <h1 id="your-first-workflow">Your first workflow</h1>
-<p>In this section, you'll run the workflow you obtain from the previous step and
-learn some basics about</p>
+<p>In this section, you'll run the workflow from the previous step and see what
+TIPS can do.</p>
 <h2 id="running-the-workflow">Running the workflow</h2>
 <p>To the workflow you get from the preview section, simply run:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:1"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Command</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>nextflow run main.nf
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>nextflow run main.nf
 </code></pre></div>
-</div>
-</div>
-</div>
 <p>if you have chosen the default config, nextflow will fetch the necessary
 singularity images and run the training on you local computer. If you are lucky,
 you will see the trained models as well as their training logs in you <code>models</code>
 folder.</p>
-<h2 id="structure-of-mainnf">Structure of main.nf</h2>
-<p>To see what is happening here, we first look at the <code>main.nf</code> file:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:1"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">main.nf</label></div>
+<h2 id="structure-of-the-project">Structure of the project</h2>
+<p>The TIPS script provides a way to run your script in a reproducible, and
+scalable way. With the <code>main.nf</code> script, you are ready to run the same workflow
+on any computational resource, and easily include your own tricks to fit your
+need. See the annotated fodler structure and files below for more explanation.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Folder structure</label><label for="__tabbed_1_2">main.nf</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code><span class="cp">#!/bin/env nextflow</span><span class="w"></span>
-
-<span class="c1">// Nextflow script for training and evaluation MLPs,</span><span class="w"></span>
-<span class="c1">// generated with TIPS v0.1.0 at 21:32-220503</span><span class="w"></span>
-
-<span class="kn">import</span><span class="w"> </span><span class="err">{</span><span class="nn">trainer</span><span class="o">}</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="s1">&#39;tips/pinn.nf&#39;</span><span class="w"></span>
-<span class="kn">import</span><span class="w"> </span><span class="err">{</span><span class="nn">convert</span><span class="o">}</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="s1">&#39;tips/tips.nf&#39;</span><span class="w"></span>
-
-<span class="n">params</span><span class="o">.</span><span class="na">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;datasets/qm9&#39;</span><span class="w"> </span><span class="c1">// input data</span><span class="w"></span>
-<span class="n">params</span><span class="o">.</span><span class="na">inps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;inputs/pinet.yml&#39;</span><span class="w"> </span><span class="c1">// model inputs</span><span class="w"></span>
-<span class="n">params</span><span class="o">.</span><span class="na">seeds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;1,2,3,4,5&#39;</span><span class="w"> </span><span class="c1">// random sees to initialze</span><span class="w"></span>
-<span class="n">params</span><span class="o">.</span><span class="na">splits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;90:10&#39;</span><span class="w"> </span><span class="c1">// train,eval splits</span><span class="w"></span>
-
-<span class="n">workflow</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Channel</span><span class="o">.</span><span class="na">fromPath</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">ds</span><span class="o">)</span><span class="w"></span>
-<span class="w">  </span><span class="n">input</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Channel</span><span class="o">.</span><span class="na">fromPath</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">inps</span><span class="o">)</span><span class="w"></span>
-<span class="w">  </span><span class="n">splits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Channel</span><span class="o">.</span><span class="na">fromList</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">split</span><span class="o">)</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">names</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ds</span><span class="o">.</span><span class="na">combine</span><span class="o">(</span><span class="n">inputs</span><span class="o">).</span><span class="na">combine</span><span class="o">(</span><span class="n">splits</span><span class="o">).</span><span class="na">combine</span><span class="o">(</span><span class="n">seeds</span><span class="o">)</span><span class="w"></span>
-<span class="w">    </span><span class="o">.</span><span class="na">map</span><span class="o">{</span><span class="n">ds</span><span class="o">,</span><span class="w"> </span><span class="n">inp</span><span class="o">,</span><span class="w"> </span><span class="n">split</span><span class="o">,</span><span class="w"> </span><span class="n">seed</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="s2">&quot;$ds-$inp.name-$split-$seed&quot;</span><span class="o">}</span><span class="w"></span>
-<span class="w">  </span><span class="n">dataset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">convert</span><span class="o">(</span><span class="n">ds</span><span class="o">,</span><span class="w"> </span><span class="n">params</span><span class="o">.</span><span class="na">splits</span><span class="o">)</span><span class="w"></span>
-<span class="w">  </span><span class="n">trainer</span><span class="o">(</span><span class="n">dataset</span><span class="o">,</span><span class="w"> </span><span class="n">input</span><span class="o">,</span><span class="w"> </span><span class="n">names</span><span class="o">)</span><span class="w"></span>
-<span class="o">}</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>your_
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">|</span>- main.nf <span class="c1"># (1)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="p">|</span>- nextflow.config <span class="c1"># (2)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">|</span>- tips <span class="c1"># (3)</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>   <span class="p">|</span>- pinn.nf 
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">|</span>- work <span class="c1"># (4)</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>   <span class="p">|</span>- f3/fa4ce305c2b0d057af8b83ad9b0aec
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>   <span class="p">|</span>- ....
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="p">|</span>- models <span class="c1"># (5)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>   <span class="p">|</span>- qm9-pinet-1
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>   <span class="p">|</span>- qm9-pinet-2
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>   <span class="p">|</span>- ....
 </code></pre></div>
+<ol>
+<li>This is the workflow file that you execute, see the tab on the left.</li>
+<li>This controls how the jobs are run on different resources.</li>
+<li>TIPS provides several <code>modules</code> for different tasks, those are stored in the <code>tips</code> subfolder,
+   see the <a href="../recipe/overview">modules documentation</a> for their specific usage. </li>
+<li>This holds the actual runtime folder of the jobs, where the scripts, data and intermediate results sites.</li>
+<li>The <code>models</code> (or alike) folders are "published" by nextflow, tips have a sysmtatic way to order the jobs, see <a href="workflow/#general_rules">general rules</a>.</li>
+</ol>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">import</span><span class="w"> </span><span class="err">{ </span><span class="nn">pinnTrain</span><span class="w"> </span><span class="o">}</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="s1">&#39;tips/pinn.nf&#39;</span><span class="w"> </span><span class="c1">// (1)</span><span class="w"></span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">params</span><span class="o">.</span><span class="na">ds</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;datasets/h2o.data&#39;</span><span class="w"> </span><span class="c1">// (2)</span><span class="w"></span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">params</span><span class="o">.</span><span class="na">inps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;inputs/pinet.yml&#39;</span><span class="w"></span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">params</span><span class="o">.</span><span class="na">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;--train-steps 1000000 --batch 30&#39;</span><span class="w"> </span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">workflow</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="n">channel</span><span class="o">.</span><span class="na">fromPath</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">ds</span><span class="o">)</span><span class="w"> </span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="o">.</span><span class="na">combine</span><span class="o">(</span><span class="n">Channel</span><span class="o">.</span><span class="na">fromPath</span><span class="o">(</span><span class="n">params</span><span class="o">.</span><span class="na">inps</span><span class="o">))</span><span class="w"></span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="o">.</span><span class="na">multiMap</span><span class="w"> </span><span class="o">{</span><span class="w"></span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="w">      </span><span class="n">ds</span><span class="o">,</span><span class="w"> </span><span class="nl">inp:</span><span class="w"></span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">      </span><span class="nl">name:</span><span class="w"> </span><span class="n">$</span><span class="s2">&quot;$ds.baseName-inp.baseName&quot;</span><span class="w"></span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">      </span><span class="nl">ds:</span><span class="w"> </span><span class="n">ds</span><span class="w"></span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">      </span><span class="nl">inp:</span><span class="w"> </span><span class="n">inp</span><span class="w"></span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">      </span><span class="nl">flags:</span><span class="w"> </span><span class="n">params</span><span class="o">.</span><span class="na">flags</span><span class="w"></span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="o">}</span><span class="w"></span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="o">.</span><span class="na">set</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="n">ch</span><span class="w"> </span><span class="o">}</span><span class="w"> </span><span class="c1">// (3)</span><span class="w"></span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">  </span><span class="n">pinnTrain</span><span class="w"> </span><span class="o">(</span><span class="n">ch</span><span class="o">.</span><span class="na">name</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">ds</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">inp</span><span class="o">,</span><span class="w"> </span><span class="n">ch</span><span class="o">.</span><span class="na">flags</span><span class="o">)</span><span class="w"></span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="o">}</span><span class="w"></span>
+</code></pre></div>
+<ol>
+<li>This imports the <code>pinnTrain</code> process that does the actual training, you can
+    find from the <a href="../module/pinn/#pinntrain">documentation</a> that under the 
+    hood, it's just a bash script. To build your own workflow, feel free to
+    substitue in your favorate ML/MD package.</li>
+<li>The <code>params.xx</code> lines defines variables you can change during runtime, for
+   instance running the same script with <code>nextflow run main --ds 'dataset/water.data'</code> 
+   trains your model on a different dataset.</li>
+<li>TIPS build up complex workflows following a few rules. Here, we create the data channels
+   and name the runs according to the dataset and PiNN input. The channels are built from named channels with the multiMap function, see <a href="https://www.nextflow.io/docs/latest/operator.html#multimap">nextflow
+   documentation</a>
+   for the details.</li>
+</ol>
 </div>
 </div>
 </div>
-<p>This file defines the workflow, as well as the adjustable parameters. For
-instance, the "ds" parameter can be adjusted at runtime with <code>nextflow run --ds datasets/water.yml</code>.</p>
-<p>You might notice that this workflow imports some "processes" (such as trainer)
-from the other "modules". Looking into <code>pinn.nf</code>, you'll find that it defines
-the actual commands ran to perform the training, and the input/output thereof.</p>
-<p>In TIPS, the processes can be used interchangably so long as they share a
-similar input/output pattern. For example, you can easily integrate a
-Python-based training script into any existing workflow, so long as it consumes
-a dataset and output a model.</p>
 <h2 id="nextflow-basics">Nextflow basics</h2>
-<p>To list previous runs in the project folder:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="3:2"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Command</label><label for="__tabbed_3_2">Output</label></div>
+<p>Below going further, there are some nextflow tricks that you might find useful:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Checking</label><label for="__tabbed_2_2">Resuming</label><label for="__tabbed_2_3">Cleaning</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>nextflow log
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$ nextflow log <span class="c1"># (1)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>------------------------------------ <span class="c1"># (2)</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>TIMESTAMP              DURATION        RUN NAME                    STATUS  REVISION ID     SESSION ID                              COMMAND
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="m">2022</span>-04-26 <span class="m">22</span>:28:35    1m 13s          tender_varahamihira         OK      e7132a82d7      4f445e64-8d54-48dd-9fea-b57d9be3e5c9    nextflow run
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="m">2022</span>-04-26 <span class="m">22</span>:52:18    1h 40m 53s      tiny_brattain               OK      e7132a82d7      bf527311-a5d9-4f7b-b615-d50ff99e6ec5    nextflow run
 </code></pre></div>
+<ol>
+<li>Nextflow keeps the record of your runs with a </li>
+<li>Each run of the workflow is attached to a "run name", with which you can resume, log, 
+   and clean up the jobs, try <code>nextflow log tiny_brattain</code> (replace with your own run) to 
+   get a list of all jobs in a run.</li>
+</ol>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code> TIMESTAMP              DURATION        RUN NAME                    STATUS  REVISION ID     SESSION ID                              COMMAND
- 2022-04-26 22:28:35    1m 13s          tender_varahamihira         OK      e7132a82d7      4f445e64-8d54-48dd-9fea-b57d9be3e5c9    nextflow run
- 2022-04-26 22:52:18    1h 40m 53s      tiny_brattain               OK      e7132a82d7      bf527311-a5d9-4f7b-b615-d50ff99e6ec5    nextflow run
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$ nextflow run main.nf -resume <span class="c1"># (1)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>---
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>Launching <span class="sb">`</span>main.nf<span class="sb">`</span> <span class="o">[</span>disturbed_crick<span class="o">]</span> - revision: 3439ecc683
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>executor &gt; <span class="nb">local</span> <span class="o">(</span><span class="m">6</span><span class="o">)</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="o">[</span><span class="m">85</span>/e10f9e<span class="o">]</span> process &gt; pinnTrain <span class="o">(</span>h2o-pinet-1<span class="o">)</span> <span class="o">[</span><span class="m">50</span>%<span class="o">]</span> <span class="m">3</span> of <span class="m">6</span>, cached: <span class="m">3</span>
 </code></pre></div>
-</div>
-</div>
-</div>
-<p>To restart from a past run with new parameters:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="4:2"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Command</label><label for="__tabbed_4_2">Output</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>nextflow run --inps &#39;inputs/*.yml&#39; -resume
-</code></pre></div>
+<ol>
+<li>Nextflow caches the jobs according to their inputs, if your run is interrupted, you can resume from where your stopped with the <code>-resume</code>. You can also specify a previous run 
+   to resume from: <code>nextflow run main.nf -resume tiny_brattain</code></li>
+</ol>
 </div>
 <div class="tabbed-block">
-<div class="highlight"><pre><span></span><code>Launching `main.nf` [disturbed_crick] - revision: 3439ecc683
-executor &gt; local (6)
-[85/e10f9e] process &gt; trainner (3) [50%] 3 of 6, cached: 3
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$ nextflow clean -f disturbed_crick <span class="c1"># (1)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>--- 
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>Removed /home/user/proj/work/3f/f350726963c2372d1673b900553d6f
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Removed /home/user/proj/work/83/60f47f79880256257fc53a19b6ffac
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>Removed /home/user/proj/work/5f/bd7e2a391cb53a4e20057c4641e408
 </code></pre></div>
+<ol>
+<li>Keeping a complete record of things come at a cost, you are 
+   recommended to clean up your unneeded runs regularly. There are also 
+   the <code>-before</code>, <code>-after</code>and <code>-but</code> to clean up multiple runs a time.</li>
+</ol>
 </div>
 </div>
 </div>
-<p>Note that nextflow automatically caches your completed tasks, with the <code>-resume</code>
-command, the tasks with the exact same input will be resued. For a more
-comprehensive description, check the Nextflow CLI
-<a href="https://www.nextflow.io/docs/latest/cli.html">reference</a>.</p>
+<p>For a more comprehensive description, check the <a href="https://www.nextflow.io/docs/latest/cli.html">Nextflow CLI
+reference</a>.</p>
 <h2 id="what-next">What next?</h2>
-<p>You might notice that we did not touch upon any thing related to the
-environment, e.g., what if I need a different version of PiNN, or if I with to
-run the jobs in a queuing system? This is intentional since in TIPS the workflow
-is decoupled from the "configuration" of computational environment as much as
-possible. This design choice is to minimize the hassle when using the workflow.
-In the next section, you will get familiar with the <code>nextflow.config</code> file,
-where the computational resource, environment will be defined.</p>
+<ul>
+<li><a href="configure">Configure your run</a> your run to work on any computational
+  resource.</li>
+<li>Some more complex examples of how <a href="../../recipe/overview">workflows</a> are
+  composed.</li>
+<li>Explore how TIPS as a python <a href="../../library">library</a>.</li>
+</ul>
 
               
             </article>
@@ -1435,7 +1468,7 @@ where the computational resource, environment will be defined.</p>
     <div class="md-dialog" data-md-component="dialog">
       <div class="md-dialog__inner md-typeset"></div>
     </div>
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "navigation.tabs", "navigation.sections"], "search": "../../assets/javascripts/workers/search.2a1c317c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.ed9748b7.min.js"></script>
