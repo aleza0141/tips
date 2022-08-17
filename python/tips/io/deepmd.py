@@ -63,3 +63,57 @@ def load_deepmd_raw(directory):
         return datum
 
     return Dataset(meta=meta, indexer=indexer)
+
+
+@list_loader
+def load_deepmd_npy(directory):
+    """The npy format specification:
+    https://docs.deepmodeling.com/projects/deepmd/en/latest/data/data-conv.html#numpy-format
+    Args:
+        directory (str or list of str): folder for the npy files
+    Returns:
+        Dataset: a TIPS dataset
+    """
+    from ase.data import atomic_numbers
+    from tips.io.dataset import Dataset
+
+    # the naming scheme is the default one
+    energy = np.load(f"{directory}/energy.npy")
+    nlabel = energy.shape[0]
+    force = np.load(f"{directory}/force.npy").reshape([nlabel, -1, 3])
+    coord = np.load(f"{directory}/coord.npy").reshape([nlabel, -1, 3])
+    cell = np.load(f"{directory}/box.npy").reshape([nlabel, 3, 3])
+    type = np.loadtxt("type.raw", dtype=np.int)
+    type_map = np.genfromtxt("type_map.raw", dtype="str")
+
+    # cast the dataset to a universal form
+    type_map = np.array([atomic_numbers[type] for type in type_map], dtype=np.int)
+    elem = np.tile(type_map[type], [nlabel, 1])
+
+    all_data = {
+        "cell": cell,
+        "elem": elem,
+        "coord": coord,
+        "force": force,
+        "energy": energy,
+    }
+
+    # generating meta data
+    meta = {
+        "fmt": "DeepMD raw",
+        "size": coord.shape[0],
+        "elem": set(type_map),
+        "spec": {
+            "cell": {"shape": [3, 3], "dtype": "float"},
+            "elem": {"shape": [None], "dtype": "int"},
+            "coord": {"shape": [None, 3], "dtype": "float"},
+            "force": {"shape": [None, 3], "dtype": "float"},
+            "energy": {"shape": [], "dtype": "float"},
+        },
+    }
+
+    def indexer(i):
+        datum = {k: v[i] for k, v in all_data.items()}
+        return datum
+
+    return Dataset(meta=meta, indexer=indexer)
