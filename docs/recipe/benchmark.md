@@ -1,61 +1,74 @@
-# Benchmark workflows
+# Benchmark workflow
 
-## Usage
+Benchmarking is a typical usage of the TIPS framework. It works with a fixed
+dataset and test the result of different simulations. The possible processes are
+listed below, along with an annoted sample workflow.
 
-The below commands generate a workflow in `main.nf`and then runs it via
-nextflow. The TIPS wizard generates a generic skeleton for designing the
-workflows, to futher tweak it, please refer to the annotated `main.nf` and
-`nextflow.config` files.
+=== "Flowchart"
 
-=== "commands"
+    ```mermaid
+    flowchart TD
+    %%{init:{'flowchart':{'nodeSpacing': 36, 'rankSpacing': 40, 'curve':'linear'}}}%%
 
-    ```bash
-    tips wizard benchmark
-    nextflow run main.nf
+    ds[dataset] --> train([pinnTrain])
+    inp[input] --> train
+    seed --> train
+    train --> model["model-${ds}-${inp}-${seed}"]
+    model --> md([MD])
+    model --> vscan([Volum Scan])
+    md --> traj[trajectory]
+    traj --> rdf([RDF])
+    traj --> mdlog([MDLog])
+    rdf --> results["results-${ds}-${inp}-${seed}"]
+    mdlog --> results
+    vscan ---> results
+    
+    classDef data fill:#fff,stroke:#000,stroke-width:2px;
+    classDef process stroke-width:2px;
+    class train,pinnMD,cp2kLabel,tipsMix,tipsDiff process;
+    class ds,inp,seed,traj,model,results data;
     ```
 
 === "main.nf"
-
     ```groovy
-    #!/usr/bin/env nextflow
-    
-    params.dataset = 'qm9'
-    params.input = './inputs/*.yml'
-    params.md_init = 'h2o.xyz'
-    params.md_flag = '--nvt --T 373 --step 1000 --dt 0.5'
-    params.rdf_flag = '--tags OO,OH --rc 5'
+    // below are addition parameters that might be ajusted
+    params.datasets = './datasets/*.data' // (1)
+    params.pinn_inp = './inputs/pinet.yml'
+    params.ase_init = './inputs/init.xyz'
+    params.repeats = 5
+    params.pinn_flags = '--train-steps 5000000'
+    params.ase_flags = '--ensemble npt --T 373 --t 100 --dt 0.5 --log-every 10'
+    params.rdf_flags = '--tags O-O,O-H --rc 5 '
+    params.log_flags = '--tags density'
 
-    include {pinnTrain} from './pinn.nf'
-    include {aseMD} from './ase.nf'
-    include {rdf} from './analysis.nf'
-    
-    workflow {
-      dataset = Channel.fromPath(params.dataset)
-      input = Channel.fromPath(params.input)
-      
-      models = pinnTrain(dataset, input)
-      trajs = aseMD(models)
-      rdf(trajs, rdf_tags)
+    include { pinnTrain } from './pinn.nf' addParams(publish: 'models')
+    include { aseMD } from './ase.nf' addParams(publish: 'trajs')
+    include { rdf; mdlog } from './analysis.nf' addParams(publish: 'analyses')
+
+    workflow { // (2)
+      channel.fromPath(params.datasets)                       \
+        | combine(channel.fromPath(params.pinn_inp))          \
+        | combine(channel.of(1..params.repeats))              \
+        | map { ds, inp, seed ->                              \
+                ["$ds.baseName-$inp.baseName-$seed", ds, inp, \
+                 "--seed $seed $params.pinn_flags"] }         \
+        | pinnTrain                                           \
+        | combine(channel.fromPath(params.ase_init))          \
+        | map { name, model, init ->                          \
+                [name, model, init, params.ase_flags] }       \
+        | aseMD // (3)
+
+      aseMD.out.traj | map {name, traj -> [name, traj, params.rdf_flags]} | rdf
+      aseMD.out.traj | map {name, traj -> [name, traj, params.log_flags]} | mdlog
     }
     ```
 
-=== "nextflow.config"
-
-    ```groovy
-    profiles {
-      standard {
-        process {
-          cpus=1
-          errorStrategy='ignore'
-          withLabel: pinn {container='yqshao/pinn:master'}
-          withLabel: tame {container='yqshao/tame:master'}
-        }
-        executor {
-          name = 'local'
-          cpus = 16
-        }
-      }
-    ```
+    1. The files can be specified with wildcards to match multiple files.
+    2. The [`combine` operator](https://www.nextflow.io/docs/latest/operator.html#combine)
+       builds `tuple`s with all possible combinations. Here, we want to benchmark all dataset
+       with all model inputs, and run `repeats` for each model.
+    3. to apply multiple analyses to the same trajectory, you can use the `.out` of the
+       processes.
 
 ## Other links
 

@@ -1,9 +1,17 @@
 # -*- coding: utf-8 -*-
 
-"""The CP2K data loader"""
-import numpy as np
-from tips.io.utils import list_loader
+"""This module implements the loader for CP2K MD trajectories"""
 
+import numpy as np
+import logging
+from tips.io.utils import list_loader
+from ase.units import create_units
+
+# This is to follow the CP2K standard to use CODATA 2006, which differs from the
+# the defaults of ASE (as of ASE ver 3.23 and CP2K v2022.1, Sep 2022)
+units = create_units('2006')
+
+logger = logging.getLogger('tips')
 
 def _index_xyz(fname):
     """Indexes a list of cp2k files, return the location to each frame"""
@@ -29,7 +37,7 @@ def _index_cell(fname):
 def _index_ener(fname):
     """Indexes a cp2k energy file, returns the total energy"""
     energies = np.loadtxt(fname, usecols=4)
-    return energies
+    return energies * units['Hartree']
 
 
 def _load_pos(index):
@@ -53,7 +61,6 @@ def _load_pos(index):
 
 def _load_frc(index):
     from ase.data import atomic_numbers
-
     fname, loc = index
     force = []
     f = open(fname, "r")
@@ -64,8 +71,8 @@ def _load_frc(index):
         if len(line) <= 1:
             break
         force.append(line[1:4])
-    f.close()
-    return {"force": np.array(force, np.float)}
+    f.close() # by default, CP2K writes xyz in a.u. (Hartree/Bohr)
+    return {"force": np.array(force, np.float)*units['Hartree']/units['Bohr']}
 
 
 def _load_ener(energy):
@@ -80,27 +87,25 @@ _frc_spec = {"force": {"dtype": "float", "shape": [None, 3]}}
 _cell_spec = {"cell": {"dtype": "float", "shape": [3, 3]}}
 _ener_spec = {"energy": {"dtype": "float", "shape": []}}
 _pos_spec = {
-    "elems": {"dtype": "int", "shape": [None]},
+    "elem": {"dtype": "int", "shape": [None]},
     "coord": {"dtype": "float", "shape": [None, 3]},
 }
 
 
 @list_loader
-def load_cp2k(project, pos="auto", cell="auto", frc="auto", ener="auto"):
+def load_cp2k(project,
+              cp2k_pos="pos-1.xyz", cp2k_cell="1.cell",
+              cp2k_frc="frc-1.xyz", cp2k_ener="1.ener"):
     """Loads cp2k-formatted outputs as datasets
 
     By default, the following supported output files are scanned and matching
     files will be loaded. The loader assumes that all files contains the same
     number of matching frames.
 
-    - ener: f"{project}-1.ener"
-    - cell: f"{project}-1.cell"
-    - pos: f"{project}-pos-1.xyz"
-    - frc: f"{project}-frc-1.xyz"
-
-    TODO (extra keywords) to be scanned:
-    - log2ener: load energy from a log file
-    - log2frc: load forces from a log file
+    - ener: f"{project}-{cp2k_ener}"
+    - cell: f"{project}-{cp2k_cell}"
+    - pos: f"{project}-{cp2k_pos}"
+    - frc: f"{project}-{cp2k_frc}"
 
     Args:
         project (str): the CP2K project name
@@ -114,19 +119,16 @@ def load_cp2k(project, pos="auto", cell="auto", frc="auto", ener="auto"):
     from tips.io.dataset import Dataset
 
     default_pattern = [
-        ("pos", "{project}-pos-1.xyz", _index_xyz, _load_pos, _pos_spec),
-        ("frc", "{project}-frc-1.xyz", _index_xyz, _load_frc, _frc_spec),
-        ("cell", "{project}-1.cell", _index_cell, _load_cell, _cell_spec),
-        ("ener", "{project}-1.ener", _index_ener, _load_ener, _ener_spec),
+        ("pos", f"{project}-{cp2k_pos}", _index_xyz, _load_pos, _pos_spec),
+        ("frc", f"{project}-{cp2k_frc}", _index_xyz, _load_frc, _frc_spec),
+        ("cell", f"{project}-{cp2k_cell}", _index_cell, _load_cell, _cell_spec),
+        ("ener", f"{project}-{cp2k_ener}", _index_ener, _load_ener, _ener_spec),
     ]
 
     indices, loaders, specs = {}, {}, {}
     for key, pattern, indexer, loader, spec in default_pattern:
-        if locals()[key] == "auto":
-            path = pattern.format(project=project)
-            path = path if exists(path) else False
-        else:
-            path = locals()[key]
+        path = pattern.format(project=project)
+        path = path if exists(path) else False
         if path:
             indices[key] = indexer(path)
             loaders[key] = loader
@@ -138,12 +140,19 @@ def load_cp2k(project, pos="auto", cell="auto", frc="auto", ener="auto"):
             data.update(loaders[k](indices[k][i]))
         return data
 
-    assert len(set([len(idx) for idx in indices.values()]))==1
+
+    sizes = {k:len(idx) for k,idx in indices.items()}
+    try:
+        assert len(set(sizes.values())) == 1, f"Inconsistent sizes {sizes}"
+        files = list(sizes.keys())
+        size = list(sizes.values())[0]
+        logger.info(f"Indexed CP2K project {project}, size: {size}, files: {files}")
+    except AssertionError as err:
+        logger.exception(err)
 
     meta = {
         "fmt": "CP2K output",
-        "size": len(indices["pos"]),
-        "elem": set(loader(0)["elem"]),
+        "size": size,
         "spec": specs,
     }
 

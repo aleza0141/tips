@@ -10,13 +10,11 @@ process cp2k {
   publishDir "$params.publish/$name"
 
   input:
-    val name
-    path input
-    path aux
+    tuple val(name), path(input), path(aux)
 
   output:
-    tuple val(name), path('*.{ener,xyz,stress}'), emit:traj
     tuple val(name), path('cp2k.log'), emit:logs
+    tuple val(name), path('*.{ener,xyz,stress,cell}'), emit:traj, optional: true
     tuple val(name), path('*.restart'), emit:restart, optional:true
 
   script:
@@ -33,74 +31,29 @@ process cp2kGenInp {
   publishDir "$params.publish/$name"
 
   input:
-    val name
-    path input, stageAs: 'cp2k_skel.inp'
-    path init
-    val flags
+    tuple val(name), path(input,stageAs: 'cp2k_skel.inp'), path(ds), val(flags)
 
   output:
-    tuple val(name), path('cp2k.inp')
+    tuple val(name), path('*.inp')
 
   script:
   """
-  #!/usr/bin/env python
-  import re
-  from ase.data import chemical_symbols as symbol
-  from tips.io import load_ds
-  # read flags
-  setup = {
-    'emap': None,
-    'idx': -1,
-    'fmt': 'auto',
-  }
-  flags = {
-    k: v for k,v in
-      re.findall('--(.*?)[\\s,\\=]([^\\s]*)', "$flags")
-  }
-  setup.update(flags)
-  # load the desired geometry
-  ds = load_ds("$init", fmt=flags['fmt'])
-  if setup['emap'] is not None:
-      ds = ds.map_elems(setup['emap'])
-  datum = ds[int(setup['idx'])]
-  # edit the input file
-  coord = [f'  {symbol[e]} {x} {y} {z}' for e, (x,y,z) in zip(datum['elem'], datum['coord'])]
-  cell = [f'  {v} {x} {y} {z}' for v, (x, y, z) in zip('ABC', datum['cell'])]
-  subsys = ['&COORD']+coord+['&END COORD']+['&CELL']+cell+['&END CELL']
-  lines = open("$input").readlines()
-  for idx, line in enumerate(lines):
-      if '&END SUBSYS' in line:
-          indent = len(line) - len(line.lstrip())
-          break
-  subsys = [' '*(indent+2) + l + '\\n' for l in subsys]
-  lines = lines[:idx] + subsys + lines[idx:]
-  with open('cp2k.inp', 'w') as f:
-      f.writelines(lines)
+  tips utils mkcp2kinp $input $ds $flags
   """
 }
 
 
 workflow cp2kMD {
   take:
-    name
-    input
-    init
-    flags
+    ch // [name, input, init, flags]
 
   main:
-    ch_inp = cp2kGenInp(name, input, init, flags)
-    ch_inp
-      .multiMap{
-        name, inp ->
-        name: name
-        inp: inp
-        aux: file(params.cp2k_aux)
-      }
-      .set {ch}
-    out = cp2k(ch.name, ch.inp, ch.aux)
+    ch | cp2kGenInp // -> [name, inp]
+       | map {name, inp -> [name, inp, file(params.cp2k_aux)]}
+       | cp2k
 
   emit:
-    traj = out.traj
-    logs = out.logs
-    restart = out.restart
+    traj = cp2k.out.traj
+    logs = cp2k.out.logs
+    restart = cp2k.out.restart
 }
